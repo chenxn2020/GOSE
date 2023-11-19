@@ -1,7 +1,7 @@
 # GOSE
 Code for the EMNLP2023 (Findings) paper "Global Structure Knowledge-Guided Relation Extraction Method for Visually-Rich Document""
 
-环境安装
+环境安装  
 conda create -n gose python=3.8  
 conda activate gose  
 pip install -r requirements.txt  
