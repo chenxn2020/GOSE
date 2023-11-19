@@ -11,7 +11,6 @@ pip install packaging==21.3 -i https://pypi.tuna.tsinghua.edu.cn/simple/
 pip install timm
 
 
-
 预训练模型下载
 https://github.com/jpWang/LiLT
 lilt-infoxlm-base
