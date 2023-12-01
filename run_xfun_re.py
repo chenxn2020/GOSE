@@ -11,14 +11,14 @@ import numpy as np
 from datasets import ClassLabel, load_dataset
 
 
-import LiLTfinetune.data.datasets.xfun
+import GOSEfinetune.data.datasets.xfun
 import transformers
-from LiLTfinetune import AutoModelForRelationExtraction
-from LiLTfinetune.data.data_args import XFUNDataTrainingArguments
-from LiLTfinetune.data.data_collator import DataCollatorForKeyValueExtraction
-from LiLTfinetune.evaluation import re_score
-from LiLTfinetune.models.model_args import ModelArguments, GOSEArguments
-from LiLTfinetune.trainers import XfunReTrainer
+from GOSEfinetune import AutoModelForRelationExtraction
+from GOSEfinetune.data.data_args import XFUNDataTrainingArguments
+from GOSEfinetune.data.data_collator import DataCollatorForKeyValueExtraction
+from GOSEfinetune.evaluation import re_score
+from GOSEfinetune.models.model_args import ModelArguments, GOSEArguments
+from GOSEfinetune.trainers import XfunReTrainer
 from transformers import (
     AutoConfig,
     AutoTokenizer,
@@ -28,10 +28,23 @@ from transformers import (
     set_seed,
 )
 from transformers.trainer_utils import get_last_checkpoint, is_main_process
-
+from transformers import CONFIG_MAPPING
+import json
+import os
 
 logger = logging.getLogger(__name__)
 
+def update_config(config, args):
+    kwargs = vars(args)
+    to_remove = []
+    for key, value in kwargs.items():
+        #--将args中的参数传入config
+        if not hasattr(config, key):
+            setattr(config, key, value)
+            to_remove.append(key)
+    for key in to_remove:
+        kwargs.pop(key, None)
+    return config    
 
 def main():
     # See all possible arguments in src/transformers/training_args.py
@@ -44,7 +57,7 @@ def main():
         # let's parse it to get our arguments.
         model_args, data_args, training_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
     else:
-        model_args, data_args, training_args, gose_args = parser.parse_args_into_dataclasses()
+        model_args, data_args, training_args, gare_args = parser.parse_args_into_dataclasses()
 
     # Detecting last checkpoint.
     last_checkpoint = None
@@ -84,10 +97,11 @@ def main():
     # Set seed before initializing model.
     set_seed(training_args.seed)
     datasets = load_dataset(
-        os.path.abspath(LiLTfinetune.data.datasets.xfun.__file__),
+        os.path.abspath(GOSEfinetune.data.datasets.xfun.__file__),
         f"xfun.{data_args.lang}", #name
         additional_langs=data_args.additional_langs,
         keep_in_memory=True,
+        data_dir = gare_args.fewshot,
     )
     if training_args.do_train:
         column_names = datasets["train"].column_names
@@ -123,8 +137,10 @@ def main():
     #
     # Distributed training:
     # The .from_pretrained methods guarantee that only one local process can concurrently
-    # download model & vocab.
-    config = AutoConfig.from_pretrained(
+    
+    
+    
+    base_config = AutoConfig.from_pretrained(
         model_args.config_name if model_args.config_name else model_args.model_name_or_path,
         num_labels=num_labels,
         finetuning_task=data_args.task_name,
@@ -132,6 +148,14 @@ def main():
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
     )
+    
+    #----将gare-args 参数更新到config里
+    config = update_config(base_config, gare_args)
+    #---gare_args 更新cofig后，会回到初始参数，母鸡why？？？？
+    logger.info(f"**********New Config {config}**********")
+    
+    
+
     tokenizer = AutoTokenizer.from_pretrained(
         model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,
@@ -139,14 +163,14 @@ def main():
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
     )
-
+    #----加载已经训练好的模型, 只在单独测试的时候使用
     path = model_args.model_name_or_path
-
-    if gose_args.use_trained_model:
-        path = get_last_checkpoint(training_args.output_dir)
-    
-  
-  
+    if config.use_trained_model and not training_args.do_train:
+        path = get_last_checkpoint(config.save_dir)
+        if path == None:
+            path = config.save_dir
+    print(f'88888888888888888888888{path}888888888888888')
+    #--------------------
     model = AutoModelForRelationExtraction.from_pretrained(
         # model_args.model_name_or_path,
         path,
@@ -155,7 +179,6 @@ def main():
         cache_dir=model_args.cache_dir,
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
-        gose_args=gose_args,
     )
     
     # Tokenizer check: this script requires a fast tokenizer.
@@ -213,7 +236,7 @@ def main():
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=compute_metrics,
-        attn_lr = gose_args.attn_lr,
+        attn_lr = config.attn_lr,
     )
     # Training
     if training_args.do_train:

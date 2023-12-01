@@ -269,4 +269,5 @@ Thumbs.db
 .prof
 
 LiLTfinetune/data/datasets/*.lock
+lilt-infoxlm-base
 # End of https://www.toptal.com/developers/gitignore/api/python,macos,pycharm+all

@@ -1,22 +1,26 @@
-# GOSE
-Code for the EMNLP2023 (Findings) paper "Global Structure Knowledge-Guided Relation Extraction Method for Visually-Rich Document""
+## In order to reproduce the results of DeMix model on the datasets, you can kindly run the following commands
+**Language-specific Fine-tuning:**
+```
+bash scripts/gose.sh en 3 18265 16
+bash scripts/gose.sh zh 4 18265 4
+bash scripts/gose.sh ja 4 18265 4
+bash scripts/gose.sh es 4 18265 12
+bash scripts/gose.sh fr 4 18265 64
+bash scripts/gose.sh it 4 18265 4
+bash scripts/gose.sh de 4 18265 4
+bash scripts/gose.sh pt 4 18265 4
+bash scripts/xlm/gose.sh en 4 18265 64 2.5e-5 15 
+bash scripts/xlm/gose.sh zh 4 18265 64 2.5e-5 15 
+bash scripts/xlm/gose.sh ja 4 18265 4 2.5e-5 15 
+bash scripts/xlm/gose.sh es 4 18265 4 2.5e-5 15 
+bash scripts/xlm/gose.sh fr 4 18265 4 2.5e-5 15 
+bash scripts/xlm/gose.sh it 4 23265 4 2.5e-5 15 
+bash scripts/xlm/gose.sh de 4 18265 4 2.5e-5 15 
+bash scripts/xlm/gose.sh pt 4 18265 4 2.5e-5 15 
+```
 
-## 🎉 Quick Links
-
-环境安装  
-conda create -n gose python=3.8  
-conda activate gose  
-pip install -r requirements.txt  
-python -m pip install detectron2==0.5 -f  https://dl.fbaipublicfiles.com/detectron2/wheels/cu110/torch1.7/index.html  
-pip install -e .  
-pip install packaging==21.3 -i https://pypi.tuna.tsinghua.edu.cn/simple/  
-pip install timm  
-  
-  
-预训练模型下载  
-https://github.com/jpWang/LiLT  
-lilt-infoxlm-base  
-
-finetune  
-bash gose.sh [language]  
-e.g.  base gose.sh en  #在funsd数据集上finetune
+**Multilingual fine-tuning:**
+```
+sh scripts/lilt_multi.sh 4 21995 4 
+sh scripts/xlm/multi.sh 4 21995 4 2.5e-5 15
+```
