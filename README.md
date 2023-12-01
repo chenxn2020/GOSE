@@ -60,12 +60,16 @@ We provide example scripts for explaining the usage of our code. You can kindly 
 
 + ### Language-specific Fine-tuning
 
+<a id="lsf"></a>
+
 ```bash
 # Current path:  */GOSE
 bash standard.sh
 ```
 
 + ### Multilingual fine-tuning
+
+<a id="mf"></a>
 
 ```bash
 # Current path:  */GOSE
