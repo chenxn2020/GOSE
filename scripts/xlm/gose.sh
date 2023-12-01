@@ -4,10 +4,9 @@ PORT=$3
 GLOBAL=$4
 lr=$5
 attn=$6
-gpu=$7
 save="checkpoints"/"xlm"/"$lang"/"$ROUNDS"_"$GLOBAL"_"$lr"_"$attn"
 # save="$lang"_"attn_mean"
-CUDA_VISIBLE_DEVICES=$gpu python -m torch.distributed.launch --nproc_per_node=1 --master_port $PORT  run_xfun_re.py \
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port $PORT  run_xfun_re.py \
         --model_name_or_path microsoft/layoutxlm-base \
         --output_dir $save \
         --lang $lang \

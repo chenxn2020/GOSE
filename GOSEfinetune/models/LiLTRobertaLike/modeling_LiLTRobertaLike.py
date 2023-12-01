@@ -906,7 +906,6 @@ from transformers.file_utils import ModelOutput
 
 from ...modules.decoders.RE import RE
 from ...modules.decoders.gose import GOSE
-from ...modules.decoders.show_result import save_result
 from ...utils import ReOutput
 
 class LiLTRobertaLikeForRelationExtraction(LiLTRobertaLikePreTrainedModel):

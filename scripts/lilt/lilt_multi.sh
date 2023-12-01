@@ -1,10 +1,9 @@
 ROUNDS=$1
 PORT=$2
 GLOBAL=$3
-gpu=$4
 save="checkpoints"/"multi"/"lilt"_"$ROUNDS"_"$GLOBAL"
 # save="$lang"_"attn_mean"
-CUDA_VISIBLE_DEVICES=$gpu python -m torch.distributed.launch --nproc_per_node=1 --master_port $PORT  run_xfun_re.py \
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port $PORT  run_xfun_re.py \
         --model_name_or_path lilt-infoxlm-base \
         --tokenizer_name xlm-roberta-base \
         --output_dir $save \
